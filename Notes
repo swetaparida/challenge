@@ -1,0 +1,46 @@
+1.Created two accounts:- Method= POST
+
+http://localhost:18080/v1/accounts
+
+{
+	"accountId":"narenra",
+	"balance":0
+
+}
+
+http://localhost:18080/v1/accounts:- Method=Post
+
+{
+	"accountId":"sweta",
+	"balance":100000000
+
+}
+
+Create one Post request to Transfer the amount :-
+
+http://localhost:18080/v1/ammount/transfer
+
+{
+	"senderAccountId":"sweta",
+	"recieverAccountId": "narenra",
+	"amount":100
+}
+
+Handle Error Message :-
+
+http://localhost:18080/v1/accounts/amount/transfer
+
+{
+	"senderAccountId":"narenra",
+	"recieverAccountId": "sweta",
+	"amount":101
+	
+}
+
+Response: your's balance is Insufficient
+Status: 404 Bad request
+
+
+Notification will be logged in console logs.
+
+
