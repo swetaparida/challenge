@@ -1,14 +1,15 @@
 package com.db.awmd.challenge.web;
 
-import com.db.awmd.challenge.domain.Account;
-import com.db.awmd.challenge.domain.TransactionDetails;
-import com.db.awmd.challenge.exception.DuplicateAccountIdException;
-import com.db.awmd.challenge.exception.InsufficientAmountException;
-import com.db.awmd.challenge.exception.InvalidAccountIdException;
-import com.db.awmd.challenge.service.AccountsService;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Arrays;
+
 import javax.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
+import com.db.awmd.challenge.domain.Account;
+import com.db.awmd.challenge.domain.MultiThead2;
+import com.db.awmd.challenge.domain.Multithread;
+import com.db.awmd.challenge.domain.TransactionDetails;
+import com.db.awmd.challenge.exception.DuplicateAccountIdException;
+import com.db.awmd.challenge.exception.InsufficientAmountException;
+import com.db.awmd.challenge.exception.InvalidAccountIdException;
+import com.db.awmd.challenge.service.AccountsService;
+
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/v1/accounts")
@@ -55,7 +68,11 @@ public class AccountsController {
 	    log.info("Transfering account to id {}", transactionDetails.getRecieverAccountId());
 
 	    try {
-		    accountsService.validateTranscationDetails(transactionDetails);
+	    	
+	            accountsService.validateTranscationDetails(transactionDetails);
+	            System.out.println("validateTranscationDetails");
+	        
+		   
 	        } catch (InvalidAccountIdException|InsufficientAmountException ex) {
 	          return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
 	        }
@@ -64,4 +81,37 @@ public class AccountsController {
 	    
 	    return new ResponseEntity<>(HttpStatus.OK);
   }
+  
+  
+  @GetMapping(path = "/test/thread")
+  public void testThread() {
+	 
+	  RestTemplate restTemplate= new RestTemplate();
+			  
+	  HttpHeaders headers = new HttpHeaders();
+      headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+      Account swetaAccount=new Account("sweta", new BigDecimal(100000));
+      Account narendraAccount=new Account("narendra", new BigDecimal(0));
+      HttpEntity<Account> entity = new HttpEntity<Account>(swetaAccount,headers);
+       restTemplate.exchange(
+         "http://localhost:18080/v1/accounts", HttpMethod.POST, entity, String.class).getBody();
+	  
+       HttpEntity<Account> entity2 = new HttpEntity<Account>(narendraAccount,headers);
+       restTemplate.exchange(
+         "http://localhost:18080/v1/accounts", HttpMethod.POST, entity2, String.class).getBody();
+	  
+       
+       
+       
+       int n = 100; //number of threads
+	    	for (int i=0; i<n; i++) 
+	        { 
+	            Multithread object = new Multithread(); 
+	            object.start(); 
+	            MultiThead2 object1 = new MultiThead2(); 
+	            object1.start();
+	        } 
+		   
+  }
+
 }

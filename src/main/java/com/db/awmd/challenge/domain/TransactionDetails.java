@@ -23,4 +23,16 @@ public class TransactionDetails {
 	@NotNull
 	@Min(value = 1, message = "transaction ammount must be greater than 0")
 	private BigDecimal amount;
+
+	
+	public TransactionDetails() {}
+	public TransactionDetails(String senderAccountId, String recieverAccountId, BigDecimal amount) {
+		super();
+		this.senderAccountId = senderAccountId;
+		this.recieverAccountId = recieverAccountId;
+		this.amount = amount;
+	}
+	
+	
+	
 }
