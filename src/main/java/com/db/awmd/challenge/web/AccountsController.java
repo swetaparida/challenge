@@ -22,8 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import com.db.awmd.challenge.domain.Account;
-import com.db.awmd.challenge.domain.MultiThead2;
-import com.db.awmd.challenge.domain.Multithread;
 import com.db.awmd.challenge.domain.TransactionDetails;
 import com.db.awmd.challenge.exception.DuplicateAccountIdException;
 import com.db.awmd.challenge.exception.InsufficientAmountException;
@@ -36,82 +34,52 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/v1/accounts")
 @Slf4j
 public class AccountsController {
-  private final AccountsService accountsService;
+	private final AccountsService accountsService;
 
-  @Autowired
-  public AccountsController(AccountsService accountsService) {
-    this.accountsService = accountsService;
-  }
+	@Autowired
+	public AccountsController(AccountsService accountsService) {
+		this.accountsService = accountsService;
+	}
 
-  @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<Object> createAccount(@RequestBody @Valid Account account) {
-    log.info("Creating account {}", account);
+	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Object> createAccount(@RequestBody @Valid Account account) {
+		log.info("Creating account {}", account);
 
-    try {
-    this.accountsService.createAccount(account);
-    } catch (DuplicateAccountIdException daie) {
-      return new ResponseEntity<>(daie.getMessage(), HttpStatus.BAD_REQUEST);
-    }
+		try {
+			this.accountsService.createAccount(account);
+		} catch (DuplicateAccountIdException daie) {
+			return new ResponseEntity<>(daie.getMessage(), HttpStatus.BAD_REQUEST);
+		}
 
-    return new ResponseEntity<>(HttpStatus.CREATED);
-  }
+		return new ResponseEntity<>(HttpStatus.CREATED);
+	}
 
-  @GetMapping(path = "/{accountId}")
-  public Account getAccount(@PathVariable String accountId) {
-    log.info("Retrieving account for id {}", accountId);
-    return this.accountsService.getAccount(accountId);
-  }
+	@GetMapping(path = "/{accountId}")
+	public Account getAccount(@PathVariable String accountId) {
+		log.info("Retrieving account for id {}", accountId);
+		return this.accountsService.getAccount(accountId);
+	}
 
-  @PostMapping(path="/amount/transfer")
-  public ResponseEntity<Object> transferAmount(@RequestBody @Valid TransactionDetails transactionDetails) {
-	    log.info("Transfering account from id {}", transactionDetails.getSenderAccountId());
-	    log.info("Transfering account to id {}", transactionDetails.getRecieverAccountId());
+	@PostMapping(path="/amount/transfer")
+	public ResponseEntity<Object> transferAmount(@RequestBody @Valid TransactionDetails transactionDetails) {
+		log.info("Transfering account from id {}", transactionDetails.getSenderAccountId());
+		log.info("Transfering account to id {}", transactionDetails.getRecieverAccountId());
 
-	    try {
-	    	
-	            accountsService.validateTranscationDetails(transactionDetails);
-	            System.out.println("validateTranscationDetails");
-	        
-		   
-	        } catch (InvalidAccountIdException|InsufficientAmountException ex) {
-	          return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
-	        }
+		try {
 
-	    accountsService.transferAmount(transactionDetails);
-	    
-	    return new ResponseEntity<>(HttpStatus.OK);
-  }
-  
-  
-  @GetMapping(path = "/test/thread")
-  public void testThread() {
-	 
-	  RestTemplate restTemplate= new RestTemplate();
-			  
-	  HttpHeaders headers = new HttpHeaders();
-      headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-      Account swetaAccount=new Account("sweta", new BigDecimal(100000));
-      Account narendraAccount=new Account("narendra", new BigDecimal(0));
-      HttpEntity<Account> entity = new HttpEntity<Account>(swetaAccount,headers);
-       restTemplate.exchange(
-         "http://localhost:18080/v1/accounts", HttpMethod.POST, entity, String.class).getBody();
-	  
-       HttpEntity<Account> entity2 = new HttpEntity<Account>(narendraAccount,headers);
-       restTemplate.exchange(
-         "http://localhost:18080/v1/accounts", HttpMethod.POST, entity2, String.class).getBody();
-	  
-       
-       
-       
-       int n = 100; //number of threads
-	    	for (int i=0; i<n; i++) 
-	        { 
-	            Multithread object = new Multithread(); 
-	            object.start(); 
-	            MultiThead2 object1 = new MultiThead2(); 
-	            object1.start();
-	        } 
-		   
-  }
+			accountsService.validateTranscationDetails(transactionDetails);
+			System.out.println("validateTranscationDetails");
+
+
+		} catch (InvalidAccountIdException|InsufficientAmountException ex) {
+			return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+		}
+
+		accountsService.transferAmount(transactionDetails);
+
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+
 
 }
